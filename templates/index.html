@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI/DS Salary Predictor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 50px 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .main-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border: none;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border: none;
+        }
+        
+        .card-header h1 {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .card-header p {
+            opacity: 0.9;
+            margin-bottom: 0;
+        }
+        
+        .card-body {
+            padding: 40px;
+        }
+        
+        .form-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .form-section h5 {
+            color: #495057;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: #495057;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 10px 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .btn-predict {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .btn-predict:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+        
+        .btn-predict:active {
+            transform: translateY(0px);
+        }
+        
+        .result-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 15px;
+            padding: 30px;
+            color: white;
+            text-align: center;
+            display: none;
+            margin-top: 30px;
+        }
+        
+        .result-card .salary {
+            font-size: 48px;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+        
+        .result-card .label {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+        
+        .result-card .details {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        
+        @media (max-width: 768px) {
+            .card-body {
+                padding: 20px;
+            }
+            .result-card .salary {
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container main-container">
+        <div class="card">
+            <div class="card-header">
+                <h1><i class="fas fa-robot"></i> AI/DS Salary Predictor</h1>
+                <p>Predict your salary based on job characteristics</p>
+            </div>
+            <div class="card-body">
+                <form id="predictionForm">
+                    <div class="row">
+                        <!-- Personal Information -->
+                        <div class="col-md-6">
+                            <div class="form-section">
+                                <h5><i class="fas fa-user"></i> Personal Information</h5>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Job Title</label>
+                                    <input type="text" class="form-control" name="job_title" value="Data Scientist">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Experience Level</label>
+                                    <select class="form-select" name="experience_level">
+                                        <option value="Entry">Entry</option>
+                                        <option value="Mid" selected>Mid</option>
+                                        <option value="Senior">Senior</option>
+                                        <option value="Executive">Executive</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Years of Experience</label>
+                                    <input type="number" class="form-control" name="years_experience" value="3" min="0" max="40">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Education Level</label>
+                                    <select class="form-select" name="education_level">
+                                        <option value="Bachelor">Bachelor</option>
+                                        <option value="Master" selected>Master</option>
+                                        <option value="PhD">PhD</option>
+                                        <option value="High School">High School</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Company Information -->
+                        <div class="col-md-6">
+                            <div class="form-section">
+                                <h5><i class="fas fa-building"></i> Company Information</h5>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Company Location</label>
+                                    <select class="form-select" name="company_location_full">
+                                        <option value="United States" selected>United States</option>
+                                        <option value="India">India</option>
+                                        <option value="United Kingdom">United Kingdom</option>
+                                        <option value="Germany">Germany</option>
+                                        <option value="Canada">Canada</option>
+                                        <option value="Australia">Australia</option>
+                                        <option value="Brazil">Brazil</option>
+                                        <option value="Netherlands">Netherlands</option>
+                                        <option value="France">France</option>
+                                        <option value="Poland">Poland</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Company Size</label>
+                                    <select class="form-select" name="company_size">
+                                        <option value="S">Small</option>
+                                        <option value="M" selected>Medium</option>
+                                        <option value="L">Large</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Industry</label>
+                                    <select class="form-select" name="industry">
+                                        <option value="Technology" selected>Technology</option>
+                                        <option value="Finance">Finance</option>
+                                        <option value="Healthcare">Healthcare</option>
+                                        <option value="Education">Education</option>
+                                        <option value="Retail">Retail</option>
+                                        <option value="Consulting">Consulting</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Employment Type</label>
+                                    <select class="form-select" name="employment_type">
+                                        <option value="Full-time" selected>Full-time</option>
+                                        <option value="Part-time">Part-time</option>
+                                        <option value="Contract">Contract</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Work Details -->
+                    <div class="form-section">
+                        <h5><i class="fas fa-briefcase"></i> Work Details</h5>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Remote Ratio (%)</label>
+                                    <input type="number" class="form-control" name="remote_ratio" value="50" min="0" max="100">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Weekly Hours</label>
+                                    <input type="number" class="form-control" name="weekly_hours" value="40" min="20" max="60">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">AI Tools Hours/Week</label>
+                                    <input type="number" class="form-control" name="ai_tools_hours_per_week" value="10" min="0" max="40">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Compensation Details -->
+                    <div class="form-section">
+                        <h5><i class="fas fa-dollar-sign"></i> Compensation Details</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Equity Offered (%)</label>
+                                    <input type="number" class="form-control" name="equity_offered_pct" value="10" min="0" max="50">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Bonus (%)</label>
+                                    <input type="number" class="form-control" name="bonus_pct" value="15" min="0" max="100">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Additional Information -->
+                    <div class="form-section">
+                        <h5><i class="fas fa-chart-line"></i> Additional Information</h5>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Certifications Count</label>
+                                    <input type="number" class="form-control" name="certifications_count" value="2" min="0" max="10">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Job Satisfaction Score</label>
+                                    <input type="number" class="form-control" name="job_satisfaction_score" value="7" min="1" max="10">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Fear of Automation Score</label>
+                                    <input type="number" class="form-control" name="fears_ai_automation_score" value="4" min="1" max="10">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-predict">
+                        <i class="fas fa-gem"></i> Predict Salary
+                    </button>
+                </form>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Analyzing your profile...</p>
+                </div>
+                
+                <div class="result-card" id="resultCard">
+                    <div class="label">Predicted Annual Salary</div>
+                    <div class="salary" id="predictedSalary">$0</div>
+                    <div class="details" id="resultDetails">
+                        <small>Based on your profile and market data</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('predictionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('resultCard').style.display = 'none';
+            
+            // Collect form data
+            const formData = new FormData(this);
+            
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                // Hide loading
+                document.getElementById('loading').style.display = 'none';
+                
+                if (data.success) {
+                    // Show result
+                    document.getElementById('predictedSalary').textContent = data.predicted_salary_formatted;
+                    document.getElementById('resultDetails').innerHTML = `
+                        <small>
+                            Features used: ${data.features_used} | 
+                            Experience: ${data.input_data.experience_level} | 
+                            Location: ${data.input_data.company_location_full}
+                        </small>
+                    `;
+                    document.getElementById('resultCard').style.display = 'block';
+                    
+                    // Animate the result
+                    const card = document.getElementById('resultCard');
+                    card.style.animation = 'none';
+                    setTimeout(() => {
+                        card.style.animation = 'fadeInUp 0.5s ease';
+                    }, 10);
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                alert('Error making prediction: ' + error.message);
+            }
+        });
+        
+        // Add CSS animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
