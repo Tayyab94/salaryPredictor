@@ -139,6 +139,16 @@
             height: 3rem;
         }
         
+        .error-message {
+            display: none;
+            background: #dc3545;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
         @media (max-width: 768px) {
             .card-body {
                 padding: 20px;
@@ -167,6 +177,18 @@
                                 <div class="mb-3">
                                     <label class="form-label">Job Title</label>
                                     <input type="text" class="form-control" name="job_title" value="Data Scientist">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Job Category</label>
+                                    <select class="form-select" name="job_category">
+                                        <option value="Data_Scientist" selected>Data Scientist</option>
+                                        <option value="ML_Engineer">ML Engineer</option>
+                                        <option value="AI_Engineer">AI Engineer</option>
+                                        <option value="Analyst">Analyst</option>
+                                        <option value="Manager">Manager</option>
+                                        <option value="Other">Other</option>
+                                    </select>
                                 </div>
                                 
                                 <div class="mb-3">
@@ -214,6 +236,17 @@
                                         <option value="Netherlands">Netherlands</option>
                                         <option value="France">France</option>
                                         <option value="Poland">Poland</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Employee Residence</label>
+                                    <select class="form-select" name="employee_residence">
+                                        <option value="US" selected>US</option>
+                                        <option value="IN">India</option>
+                                        <option value="GB">United Kingdom</option>
+                                        <option value="DE">Germany</option>
+                                        <option value="CA">Canada</option>
                                     </select>
                                 </div>
                                 
@@ -273,6 +306,23 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Team Size</label>
+                                    <input type="number" class="form-control" name="team_size" value="5" min="0" max="50">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Manages People</label>
+                                    <select class="form-select" name="manages_people">
+                                        <option value="0">No</option>
+                                        <option value="1">Yes</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <!-- Compensation Details -->
@@ -317,6 +367,26 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Interviews to Offer</label>
+                                    <input type="number" class="form-control" name="interviews_to_offer" value="3" min="1" max="10">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Switched Jobs Last Year</label>
+                                    <input type="number" class="form-control" name="switched_jobs_last_year" value="0" min="0" max="5">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Upskilling Hours/Month</label>
+                                    <input type="number" class="form-control" name="upskilling_hours_per_month" value="15" min="0" max="50">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <button type="submit" class="btn-predict">
@@ -329,6 +399,11 @@
                         <span class="visually-hidden">Loading...</span>
                     </div>
                     <p class="mt-2">Analyzing your profile...</p>
+                </div>
+                
+                <div class="error-message" id="errorMessage">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="errorText">Something went wrong. Please try again.</span>
                 </div>
                 
                 <div class="result-card" id="resultCard">
@@ -346,9 +421,10 @@
         document.getElementById('predictionForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Show loading
+            // Show loading, hide results and errors
             document.getElementById('loading').style.display = 'block';
             document.getElementById('resultCard').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
             
             // Collect form data
             const formData = new FormData(this);
@@ -366,12 +442,10 @@
                 
                 if (data.success) {
                     // Show result
-                    document.getElementById('predictedSalary').textContent = data.predicted_salary_formatted;
+                    document.getElementById('predictedSalary').textContent = data.predicted_salary_formatted || `$${data.predicted_salary.toLocaleString()}`;
                     document.getElementById('resultDetails').innerHTML = `
                         <small>
-                            Features used: ${data.features_used} | 
-                            Experience: ${data.input_data.experience_level} | 
-                            Location: ${data.input_data.company_location_full}
+                            Features used: ${data.features_used || 'N/A'}
                         </small>
                     `;
                     document.getElementById('resultCard').style.display = 'block';
@@ -383,11 +457,17 @@
                         card.style.animation = 'fadeInUp 0.5s ease';
                     }, 10);
                 } else {
-                    alert('Error: ' + data.error);
+                    // Show error
+                    document.getElementById('errorText').textContent = data.error || 'An error occurred during prediction.';
+                    document.getElementById('errorMessage').style.display = 'block';
                 }
             } catch (error) {
+                // Hide loading
                 document.getElementById('loading').style.display = 'none';
-                alert('Error making prediction: ' + error.message);
+                
+                // Show error
+                document.getElementById('errorText').textContent = 'Network error: ' + error.message;
+                document.getElementById('errorMessage').style.display = 'block';
             }
         });
         
