@@ -58,7 +58,7 @@ def engineer_features(df):
     df_engineered = df.copy()
     
     # Add engineered features that your model expects
-    df_engineered['has_equity'] = (df_engineered['equity_offered_pct'] > 0).astype(int)
+    df_engineered[' '] = (df_engineered['equity_offered_pct'] > 0).astype(int)
     df_engineered['has_bonus'] = (df_engineered['bonus_pct'] > 0).astype(int)
     
     # Experience mapping
