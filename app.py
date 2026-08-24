@@ -58,7 +58,7 @@ def engineer_features(df):
     df_engineered = df.copy()
     
     # Add engineered features that your model expects
-    df_engineered[' '] = (df_engineered['equity_offered_pct'] > 0).astype(int)
+    df_engineered['has_equity'] = (df_engineered['equity_offered_pct'] > 0).astype(int)
     df_engineered['has_bonus'] = (df_engineered['bonus_pct'] > 0).astype(int)
     
     # Experience mapping
@@ -220,4 +220,4 @@ def health_check():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(debug=False, host='0.0.0.0', port=port)
+    app.run(debug=True)
