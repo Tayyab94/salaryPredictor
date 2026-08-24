@@ -21,31 +21,44 @@ def load_model_artifacts():
     global model, scaler, features
     
     try:
+        # Check if model directory exists
+        if not os.path.exists('model'):
+            print("❌ Model directory not found")
+            return False
+        
         # Load your trained model
-        model = joblib.load('model/trained_model.pkl')
-        print("✅ Model loaded successfully")
-    except Exception as e:
-        print(f"❌ Error loading model: {e}")
-        return False
-    
-    try:
+        model_path = 'model/trained_model.pkl'
+        if os.path.exists(model_path):
+            model = joblib.load(model_path)
+            print("✅ Model loaded successfully")
+        else:
+            print(f"❌ Model file not found: {model_path}")
+            return False
+        
         # Load scaler
-        scaler = joblib.load('model/scaler.pkl')
-        print("✅ Scaler loaded successfully")
-    except Exception as e:
-        print(f"⚠️ Scaler not found: {e}")
-        scaler = None
-    
-    try:
+        scaler_path = 'model/scaler.pkl'
+        if os.path.exists(scaler_path):
+            scaler = joblib.load(scaler_path)
+            print("✅ Scaler loaded successfully")
+        else:
+            print(f"⚠️ Scaler not found: {scaler_path}")
+            scaler = None
+        
         # Load features list
-        with open('model/features.txt', 'r') as f:
-            features = [line.strip() for line in f.readlines()]
-        print(f"✅ Features loaded: {len(features)} features")
+        features_path = 'model/features.txt'
+        if os.path.exists(features_path):
+            with open(features_path, 'r') as f:
+                features = [line.strip() for line in f.readlines()]
+            print(f"✅ Features loaded: {len(features)} features")
+        else:
+            print(f"❌ Features file not found: {features_path}")
+            return False
+        
+        return True
+        
     except Exception as e:
-        print(f"❌ Error loading features: {e}")
+        print(f"❌ Error loading artifacts: {e}")
         return False
-    
-    return True
 
 # Load all artifacts on startup
 if not load_model_artifacts():
@@ -220,4 +233,4 @@ def health_check():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=port, debug=False)  # debug=False for production
