@@ -157,16 +157,8 @@ def engineer_features(df):
 @app.route('/')
 def home():
     # Simple response that always works
-    return jsonify({
-        "status": "online",
-        "service": "Salary Prediction API",
-        "version": "1.0.0",
-        "endpoints": {
-            "/predict": "POST - Submit data for prediction",
-            "/health": "GET - Check service health"
-        },
-        "model_loaded": model is not None
-    })
+    return render_template('index.html')
+
 
 @app.route('/predict', methods=['POST'])
 def predict():
