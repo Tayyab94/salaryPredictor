@@ -1,4 +1,3 @@
-# app.py - Clean version that only loads pre-trained model
 import os
 import pandas as pd
 import numpy as np
@@ -21,11 +20,6 @@ def load_model_artifacts():
     global model, scaler, features
     
     try:
-        # Check if model directory exists
-        if not os.path.exists('model'):
-            print("❌ Model directory not found")
-            return False
-        
         # Load your trained model
         model_path = 'model/trained_model.pkl'
         if os.path.exists(model_path):
@@ -61,13 +55,10 @@ def load_model_artifacts():
         return False
 
 # Load all artifacts on startup
-if not load_model_artifacts():
-    print("❌ Failed to load model artifacts. Please check your model files.")
-    exit(1)
+load_model_artifacts()
 
 def engineer_features(df):
     """Apply feature engineering (must match your training pipeline)"""
-    
     df_engineered = df.copy()
     
     # Add engineered features that your model expects
@@ -165,10 +156,26 @@ def engineer_features(df):
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    # Simple response that always works
+    return jsonify({
+        "status": "online",
+        "service": "Salary Prediction API",
+        "version": "1.0.0",
+        "endpoints": {
+            "/predict": "POST - Submit data for prediction",
+            "/health": "GET - Check service health"
+        },
+        "model_loaded": model is not None
+    })
 
 @app.route('/predict', methods=['POST'])
 def predict():
+    if model is None:
+        return jsonify({
+            'success': False,
+            'error': 'Model not loaded'
+        }), 500
+    
     try:
         # Get form data
         data = {
